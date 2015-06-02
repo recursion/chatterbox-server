@@ -11,11 +11,9 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
-//var queryString = require('querystring');
 var uuid = require('node-uuid');
 
 var messages = [];
-var rooms = [];
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -34,13 +32,17 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
 
   //console.log("Serving request type " + request.method + " for url " + request.url);
+
+  // regex for matching roomnames
   var re = /\/classes\/.*$/g;
 
+  // respond to OPTIONS requests
   if (request.method === 'OPTIONS'){
     constructHeader(response);
     response.end();
   }
 
+  // Routes Processing
   if (request.url === '/classes/messages' ){
     if (request.method === 'GET'){
       constructHeader(response);
@@ -49,15 +51,7 @@ var requestHandler = function(request, response) {
       response.end(JSON.stringify(results));
 
     } else if (request.method === 'POST'){
-      constructHeader(response, 201);
-      var body = '';
-      request.on('data', function(chunk){
-        body += chunk.toString();
-      });
-      request.on('end', function() {
-        messageBuilder(JSON.parse(body));
-      });
-      response.end();
+      postBuilder(request, response);
     }
   } else if (re.test(request.url)) {
     var path = request.url;
@@ -66,6 +60,8 @@ var requestHandler = function(request, response) {
     if (request.method === 'GET') {
       constructHeader(response);
 
+      // gather all messages with this roomname
+      // and send tyhem back to the client
       var results = {};
       var roomMessages = [];
       for (var i =0; i < messages.length; i++){
@@ -77,25 +73,13 @@ var requestHandler = function(request, response) {
       response.end(JSON.stringify(results));
 
     } else if (request.method === 'POST') {
-      constructHeader(response, 201);
-      var body = '';
-      request.on('data', function(chunk){
-        body += chunk.toString();
-      });
-      request.on('end', function() {
-        var postObj = JSON.parse(body);
-        postObj.roomname = roomname;
-        messageBuilder(postObj);
-      });
-      response.end();
+      postBuilder(request, response);
     }
-  } else {
+  } // if no
+  else {
     constructHeader(response, 404);
     response.end();
   }
-
-
-
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
@@ -107,7 +91,23 @@ var requestHandler = function(request, response) {
   //response.end("Hello, World!");
 };
 
+// Gather POST data and pass it to messageBuilder
+var postBuilder = function(request, response) {
+  constructHeader(response, 201);
+  var body = '';
+  request.on('data', function(chunk){
+    body += chunk.toString();
+  });
+  request.on('end', function() {
+    var postObj = JSON.parse(body);
+    postObj.roomname = roomname;
+    messageBuilder(postObj);
+  });
+  response.end();
+};
 
+//takes passed in object parameters and builds an object with
+//additional metadata to be passed to the global messages array
 var messageBuilder = function (dataObj) {
   var messageObject = {
     message : dataObj.message,
@@ -120,7 +120,7 @@ var messageBuilder = function (dataObj) {
   messages.push(messageObject);
 };
 
-
+// creates header data, status code and content type for each request
 var constructHeader = function (response, status) {
   // The outgoing status.
   status = status || 200;
