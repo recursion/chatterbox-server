@@ -11,6 +11,8 @@ Icon
 .Spotlight-V100
 .Trashes
 
+# Dont commit the client env files
+client/client/env/*
 
 ### Floobits
 .floo
