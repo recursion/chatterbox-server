@@ -34,6 +34,7 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
 
   //console.log("Serving request type " + request.method + " for url " + request.url);
+  var re = /\/classes\/.*$/g;
 
   if (request.method === 'OPTIONS'){
     constructHeader(response);
@@ -58,12 +59,14 @@ var requestHandler = function(request, response) {
       });
       response.end();
     }
-  } else if (request.url === '/classes/room1') {
+  } else if (re.test(request.url)) {
+    var path = request.url;
+    var roomname = path.split('/')[path.length - 1];
+
     if (request.method === 'GET') {
       constructHeader(response);
 
       var results = {};
-      var roomname = 'room1';
       var roomMessages = [];
       for (var i =0; i < messages.length; i++){
         if (messages[i].roomname === roomname){
@@ -81,7 +84,7 @@ var requestHandler = function(request, response) {
       });
       request.on('end', function() {
         var postObj = JSON.parse(body);
-        postObj.roomname = 'room1';
+        postObj.roomname = roomname;
         messageBuilder(postObj);
       });
       response.end();
