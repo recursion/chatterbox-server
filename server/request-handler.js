@@ -33,20 +33,20 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   console.log("Serving request type " + request.method + " for url " + request.url);
 
-  if (request.url === '/simon') {
+  if (request.method === 'OPTIONS'){
     constructHeader(response);
-    response.end('Hey Simon');
+    response.end();
   }
 
-  if (request.url === '/messages' ){
-    constructHeader(response);
+  if (request.url === '/classes/messages' ){
     if (request.method === 'GET'){
-      // response.write(JSON.stringify(messages));
-      console.log("User requested messages by GET method");
+      constructHeader(response);
       var results = {};
       results.results = messages;
       response.end(JSON.stringify(results));
+
     } else if (request.method === 'POST'){
+      constructHeader(response, 201);
       var body = '';
       request.on('data', function(chunk){
         body += chunk.toString();
@@ -55,7 +55,11 @@ var requestHandler = function(request, response) {
         console.log(body);
         messageBuilder(JSON.parse(body));
       });
+      response.end();
     }
+  } else {
+    constructHeader(response, 404);
+    response.end();
   }
 
 
@@ -73,7 +77,7 @@ var requestHandler = function(request, response) {
 
 var messageBuilder = function (dataObj) {
   var messageObject = {
-    text : dataObj.text,
+    message : dataObj.message,
     username : dataObj.username,
     roomname : dataObj.roomname,
     createdAt : Date.now(),
@@ -84,9 +88,10 @@ var messageBuilder = function (dataObj) {
 };
 
 
-var constructHeader = function (response) {
+var constructHeader = function (response, status) {
   // The outgoing status.
-  var statusCode = 200;
+  status = status || 200;
+  var statusCode = status;
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
 

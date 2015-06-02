@@ -1,6 +1,6 @@
 var app = {
 
-  server: 'http://127.0.0.1:3000/messages',
+  server: 'http://127.0.0.1:3000/classes/messages',
   username: 'Anony Mouse',
   rooms : [],
   friends: [],
@@ -35,7 +35,7 @@ var app = {
     _.each (messages, function (message) {
       // this message
       var user = app.validate(message.username);
-      var text = app.validate(message.text);
+      var text = app.validate(message.message);
       var room = app.validate(message.roomname);
 
       if (room !== "" && app.rooms.indexOf(room) === -1) {
@@ -120,7 +120,7 @@ var app = {
   addMessage: function (message, roomname) {
     var postThis = {};
     postThis.username = this.username;
-    postThis.text = message;
+    postThis.message = message;
     postThis.roomname = roomname;
     app.send(postThis);
   },
