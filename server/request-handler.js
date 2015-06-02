@@ -15,6 +15,7 @@ this file and include it in basic-server.js so that it actually works.
 var uuid = require('node-uuid');
 
 var messages = [];
+var rooms = [];
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -31,7 +32,8 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  console.log("Serving request type " + request.method + " for url " + request.url);
+
+  //console.log("Serving request type " + request.method + " for url " + request.url);
 
   if (request.method === 'OPTIONS'){
     constructHeader(response);
@@ -52,8 +54,35 @@ var requestHandler = function(request, response) {
         body += chunk.toString();
       });
       request.on('end', function() {
-        console.log(body);
         messageBuilder(JSON.parse(body));
+      });
+      response.end();
+    }
+  } else if (request.url === '/classes/room1') {
+    if (request.method === 'GET') {
+      constructHeader(response);
+
+      var results = {};
+      var roomname = 'room1';
+      var roomMessages = [];
+      for (var i =0; i < messages.length; i++){
+        if (messages[i].roomname === roomname){
+          roomMessages.push(messages[i]);
+        }
+      }
+      results.results = roomMessages;
+      response.end(JSON.stringify(results));
+
+    } else if (request.method === 'POST') {
+      constructHeader(response, 201);
+      var body = '';
+      request.on('data', function(chunk){
+        body += chunk.toString();
+      });
+      request.on('end', function() {
+        var postObj = JSON.parse(body);
+        postObj.roomname = 'room1';
+        messageBuilder(postObj);
       });
       response.end();
     }
@@ -71,7 +100,8 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end("Hello, World!");
+
+  //response.end("Hello, World!");
 };
 
 
@@ -119,4 +149,5 @@ var defaultCorsHeaders = {
   "access-control-allow-headers": "content-type, accept",
   "access-control-max-age": 10 // Seconds.
 };
-module.exports = requestHandler;
+
+module.exports.requestHandler = requestHandler;
