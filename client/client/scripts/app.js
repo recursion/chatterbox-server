@@ -91,6 +91,8 @@ var app = {
       type: 'GET',
       contentType: 'application/json',
       success: function (data) {
+        console.log(data);
+        data = JSON.parse(data);
         app.updateMessages( data.results);
         //console.log('chatterbox: Messages fetched');
       },

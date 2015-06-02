@@ -43,6 +43,9 @@ var requestHandler = function(request, response) {
     if (request.method === 'GET'){
       // response.write(JSON.stringify(messages));
       console.log("User requested messages by GET method");
+      var results = {};
+      results.results = messages;
+      response.end(JSON.stringify(results));
     } else if (request.method === 'POST'){
       var body = '';
       request.on('data', function(chunk){
@@ -91,7 +94,7 @@ var constructHeader = function (response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = "text/plain";
+  headers['Content-Type'] = "application/JSON";
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   response.writeHead(statusCode, headers);
