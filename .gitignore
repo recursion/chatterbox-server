@@ -12,6 +12,10 @@ Icon
 .Trashes
 
 
+### Floobits
+.floo
+.flooignore
+
 ### Node ###
 lib-cov
 *.seed

@@ -11,6 +11,10 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+//var queryString = require('querystring');
+var uuid = require('node-uuid');
+
+var messages = [];
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -29,21 +33,29 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   console.log("Serving request type " + request.method + " for url " + request.url);
 
-  // The outgoing status.
-  var statusCode = 200;
+  if (request.url === '/simon') {
+    constructHeader(response);
+    response.end('Hey Simon');
+  }
 
-  // See the note below about CORS headers.
-  var headers = defaultCorsHeaders;
+  if (request.url === '/messages' ){
+    constructHeader(response);
+    if (request.method === 'GET'){
+      // response.write(JSON.stringify(messages));
+      console.log("User requested messages by GET method");
+    } else if (request.method === 'POST'){
+      var body = '';
+      request.on('data', function(chunk){
+        body += chunk.toString();
+      });
+      request.on('end', function() {
+        console.log(body);
+        messageBuilder(JSON.parse(body));
+      });
+    }
+  }
 
-  // Tell the client we are sending them plain text.
-  //
-  // You will need to change this if you are sending something
-  // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = "text/plain";
 
-  // .writeHead() writes to the request line and headers of the response,
-  // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -55,6 +67,35 @@ var requestHandler = function(request, response) {
   response.end("Hello, World!");
 };
 
+
+var messageBuilder = function (dataObj) {
+  var messageObject = {
+    text : dataObj.text,
+    username : dataObj.username,
+    roomname : dataObj.roomname,
+    createdAt : Date.now(),
+    uniqueId : uuid.v1(),
+    updatedAt : Date.now()
+  };
+  messages.push(messageObject);
+};
+
+
+var constructHeader = function (response) {
+  // The outgoing status.
+  var statusCode = 200;
+  // See the note below about CORS headers.
+  var headers = defaultCorsHeaders;
+
+  // Tell the client we are sending them plain text.
+  //
+  // You will need to change this if you are sending something
+  // other than plain text, like JSON or HTML.
+  headers['Content-Type'] = "text/plain";
+  // .writeHead() writes to the request line and headers of the response,
+  // which includes the status and all headers.
+  response.writeHead(statusCode, headers);
+};
 // These headers will allow Cross-Origin Resource Sharing (CORS).
 // This code allows this server to talk to websites that
 // are on different domains, for instance, your chat client.
@@ -70,4 +111,4 @@ var defaultCorsHeaders = {
   "access-control-allow-headers": "content-type, accept",
   "access-control-max-age": 10 // Seconds.
 };
-
+module.exports = requestHandler;
