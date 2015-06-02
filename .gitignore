@@ -12,7 +12,7 @@ Icon
 .Trashes
 
 # Dont commit the client env files
-client/client/env/*
+client/client/env/
 
 ### Floobits
 .floo
