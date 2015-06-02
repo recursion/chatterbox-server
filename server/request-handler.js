@@ -75,11 +75,12 @@ var requestHandler = function(request, response) {
     } else if (request.method === 'POST') {
       postBuilder(request, response);
     }
-  } // if no
+  } // if url does not match any of the above, return an 404 error header message
   else {
     constructHeader(response, 404);
     response.end();
   }
+};
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
@@ -89,7 +90,6 @@ var requestHandler = function(request, response) {
   // node to actually send all the data over to the client.
 
   //response.end("Hello, World!");
-};
 
 // Gather POST data and pass it to messageBuilder
 var postBuilder = function(request, response) {
