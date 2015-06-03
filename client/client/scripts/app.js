@@ -1,3 +1,41 @@
+var Message = Backbone.Model.extend({
+  
+    
+});
+
+var Messages = Backbone.Model.extend({
+  model: Message,
+  url: 'http://127.0.0.1:3000/classes/messages/',
+
+  loadMsgs: function() {
+    this.fetch();
+  },
+
+  parse: function(response, options) {
+    return response.results;
+  }
+});
+
+var MessageView = Backbone.View.extend({
+
+});
+
+var MessagesView = Backbone.View.extend({
+
+  render: function(){
+    this.collection.forEach(this.renderMessage, this);
+  },
+
+  renderMessage: function(message) {
+    var messageView = new MessageView({model: message});
+
+  }
+
+});
+
+//////////////////////////////////////////////////////////
+//          jQuery Implementation
+//////////////////////////////////////////////////////////
 var app = {
 
   server: 'http://127.0.0.1:3000/classes/messages',
