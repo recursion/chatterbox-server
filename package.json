@@ -13,6 +13,7 @@
     "chai": "^1.9.0"
   },
   "dependencies": {
+    "express": "^4.12.4",
     "node-uuid": "^1.4.3",
     "querystring": "^0.2.0"
   }
